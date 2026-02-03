@@ -74,6 +74,10 @@ https://www.freddiemac.com/pmms/docs/historicalweeklydata.xlsx
 
 This ensures you always have access to the most current mortgage rate data.
 
+### Data Attribution
+
+The mortgage rate data is provided by Freddie Mac and is subject to their terms of use. This software license (MIT) applies only to the code and visualization tools, not to the data itself. Users access the data directly from Freddie Mac's servers.
+
 ## Project Structure
 
 ```
@@ -94,4 +98,6 @@ All dependencies are managed via uv and specified in `pyproject.toml`.
 
 ## License
 
-[Add license information here]
+MIT License - see [LICENSE](LICENSE) file for details.
+
+The software is licensed under MIT, but the mortgage rate data is provided by Freddie Mac and subject to their terms.
