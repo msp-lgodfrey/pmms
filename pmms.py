@@ -77,7 +77,7 @@ def plot_pmms(df, output_file='pmms.html'):
     # Create subplots with extra spacing to accommodate rangeslider
     fig = make_subplots(
         rows=2, cols=1,
-        subplot_titles=('', 'Rate Change'),
+        subplot_titles=('Freddie Mac PMMS<br><sub>30-Year Mortgage Rate</sub>', 'Rate Change'),
         vertical_spacing=0.38,
         row_heights=[0.52, 0.48]
     )
@@ -131,11 +131,6 @@ def plot_pmms(df, output_file='pmms.html'):
 
     # Update layout
     fig.update_layout(
-        title={
-            'text': 'Freddie Mac PMMS<br><sub>30-Year Mortgage Rate</sub><br><br><br>',
-            'x': 0.5,
-            'xanchor': 'center'
-        },
         hovermode='x unified',
         showlegend=True,
         height=950,
@@ -152,10 +147,6 @@ def plot_pmms(df, output_file='pmms.html'):
             )
         ]
     )
-
-    # Adjust subplot title positions slightly downward to avoid overlap with subtitle
-    for annotation in fig['layout']['annotations']:
-        annotation['y'] = annotation['y'] - 0.005
 
     # Update axes
     fig.update_xaxes(title_text='Date', row=1, col=1, rangeslider=dict(visible=True))
