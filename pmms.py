@@ -163,6 +163,19 @@ def plot_pmms(df, output_file='pmms.html'):
     fig.update_yaxes(title_text='Rate', row=1, col=1)
     fig.update_yaxes(title_text='Rate Change', row=2, col=1)
 
+    # Add source attribution at the bottom
+    fig.add_annotation(
+        text='Data Source: Freddie Mac Primary Mortgage Market Survey',
+        xref='paper',
+        yref='paper',
+        x=0.5,
+        y=-0.05,
+        xanchor='center',
+        yanchor='top',
+        showarrow=False,
+        font=dict(size=10, color='gray')
+    )
+
     fig.write_html(output_file)
     print(f"Plot saved to {output_file}")
 
