@@ -33,13 +33,19 @@ uv sync
 ### Running the Project
 
 ```bash
-# Load and display PMMS data
+# Load and display PMMS data from Freddie Mac (default)
+uv run python pmms.py
+
+# Or use a local file
 uv run python pmms.py data/historicalweeklydata.xlsx
 ```
 
 ## Data
 
-The main data file is `data/historicalweeklydata.xlsx`, which contains historical weekly data. This may be used as input for data analysis, reporting, or other processing tasks.
+By default, the app reads data directly from Freddie Mac's online source:
+https://www.freddiemac.com/pmms/docs/historicalweeklydata.xlsx
+
+A local copy is also available in `data/historicalweeklydata.xlsx` for offline use.
 
 ## Project Structure
 
