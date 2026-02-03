@@ -124,9 +124,10 @@ def plot_pmms(df, output_file='pmms.html'):
                 buttons=buttons,
                 direction='down',
                 showactive=True,
-                x=0.17,
+                active=2,  # Quarterly is the 3rd item (index 2)
+                x=1.02,
                 xanchor='left',
-                y=0.45,
+                y=0.32,
                 yanchor='top'
             )
         ]
