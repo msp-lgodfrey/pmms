@@ -44,11 +44,8 @@ uv run python pmms.py data/historicalweeklydata.xlsx
 ### View Data Summary
 
 ```bash
-# Read from Freddie Mac's online source (default)
+# Read from Freddie Mac's online source
 uv run python pmms.py
-
-# Or use a local file
-uv run python pmms.py data/historicalweeklydata.xlsx
 ```
 
 This displays the first and last 5 rows of the dataset.
@@ -58,11 +55,11 @@ This displays the first and last 5 rows of the dataset.
 ```python
 from pmms import read_pmms, plot_pmms
 
-# Load data from URL (default)
+# Load data from Freddie Mac URL (default)
 df = read_pmms('https://www.freddiemac.com/pmms/docs/historicalweeklydata.xlsx')
 
-# Or from local file
-df = read_pmms('data/historicalweeklydata.xlsx')
+# Or from any local file or URL
+df = read_pmms('path/to/your/file.xlsx')
 
 # Create interactive plot
 plot_pmms(df)  # Saves to pmms.html
@@ -72,17 +69,15 @@ Open `pmms.html` in a web browser to interact with the visualization.
 
 ## Data Source
 
-By default, the app reads data directly from Freddie Mac's Primary Mortgage Market Survey:
+The app reads data directly from Freddie Mac's Primary Mortgage Market Survey:
 https://www.freddiemac.com/pmms/docs/historicalweeklydata.xlsx
 
-A local copy is also available in the `data/` directory for offline use or testing.
+This ensures you always have access to the most current mortgage rate data.
 
 ## Project Structure
 
 ```
 pmms/
-├── data/
-│   └── historicalweeklydata.xlsx  # Source data
 ├── pmms.py                         # Main module
 ├── pyproject.toml                  # Project configuration
 ├── CLAUDE.md                       # Development guide
