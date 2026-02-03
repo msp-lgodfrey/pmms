@@ -30,7 +30,7 @@ def plot_pmms(df, output_file='pmms.html'):
     """
     Plot PMMS rate data over time using Plotly with two subplots:
     1. Rate over time
-    2. Quarterly rate changes
+    2. Rate changes (weekly, monthly, quarterly, or annual - selectable via dropdown)
 
     Args:
         df: DataFrame with 'date' and 'rate' columns
@@ -39,17 +39,26 @@ def plot_pmms(df, output_file='pmms.html'):
     # Ensure date column is datetime
     df = df.copy()
     df['date'] = pd.to_datetime(df['date'])
+    df_indexed = df.set_index('date')
 
-    # Calculate quarterly data (last rate of each quarter)
-    df_quarterly = df.set_index('date').resample('QE')['rate'].last().reset_index()
+    # Calculate rate changes for different periods
+    periods = {
+        'Weekly': ('W', 'W-SUN'),
+        'Monthly': ('ME', 'ME'),
+        'Quarterly': ('QE', 'QE'),
+        'Annual': ('YE', 'YE')
+    }
 
-    # Calculate quarter-over-quarter change
-    df_quarterly['rate_change'] = df_quarterly['rate'].diff()
+    period_data = {}
+    for name, (_, resample_rule) in periods.items():
+        df_period = df_indexed.resample(resample_rule)['rate'].last().reset_index()
+        df_period['rate_change'] = df_period['rate'].diff()
+        period_data[name] = df_period
 
     # Create subplots with extra spacing to accommodate rangeslider
     fig = make_subplots(
         rows=2, cols=1,
-        subplot_titles=('Rate Over Time', 'Quarterly Rate Change'),
+        subplot_titles=('Rate Over Time', 'Rate Change'),
         vertical_spacing=0.32,
         row_heights=[0.52, 0.48]
     )
@@ -66,18 +75,39 @@ def plot_pmms(df, output_file='pmms.html'):
         row=1, col=1
     )
 
-    # Add quarterly change plot with color based on positive/negative
-    colors = ['green' if x >= 0 else 'red' for x in df_quarterly['rate_change'].fillna(0)]
+    # Add rate change plots for each period
+    for idx, (name, df_period) in enumerate(period_data.items()):
+        colors = ['green' if x >= 0 else 'red' for x in df_period['rate_change'].fillna(0)]
 
-    fig.add_trace(
-        go.Bar(
-            x=df_quarterly['date'],
-            y=df_quarterly['rate_change'],
-            name='Quarterly Change',
-            marker=dict(color=colors)
-        ),
-        row=2, col=1
-    )
+        fig.add_trace(
+            go.Bar(
+                x=df_period['date'],
+                y=df_period['rate_change'],
+                name=f'{name} Change',
+                marker=dict(color=colors),
+                visible=(name == 'Quarterly')  # Only quarterly visible by default
+            ),
+            row=2, col=1
+        )
+
+    # Create dropdown menu for period selection
+    buttons = []
+    for idx, name in enumerate(period_data.keys()):
+        # Calculate which traces should be visible
+        # Trace 0 is the rate plot (always visible)
+        # Traces 1-4 are the period change plots
+        visible = [True] + [i == idx for i in range(len(period_data))]
+
+        buttons.append(
+            dict(
+                label=name,
+                method='update',
+                args=[
+                    {'visible': visible},
+                    {'annotations[1].text': f'{name} Rate Change'}  # Update subplot title
+                ]
+            )
+        )
 
     # Update layout
     fig.update_layout(
@@ -88,7 +118,18 @@ def plot_pmms(df, output_file='pmms.html'):
         },
         hovermode='x unified',
         showlegend=True,
-        height=950
+        height=950,
+        updatemenus=[
+            dict(
+                buttons=buttons,
+                direction='down',
+                showactive=True,
+                x=0.17,
+                xanchor='left',
+                y=0.45,
+                yanchor='top'
+            )
+        ]
     )
 
     # Adjust subplot title positions slightly downward to avoid overlap with subtitle

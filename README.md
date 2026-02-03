@@ -14,7 +14,8 @@ This project provides tools to load, analyze, and visualize historical mortgage 
 
 - **Interactive Visualizations**: Dual-subplot charts with Plotly
   - **Top Plot**: Historical mortgage rates over time with full timeline view
-  - **Bottom Plot**: Quarterly rate changes (color-coded: green for increases, red for decreases)
+  - **Bottom Plot**: Rate changes with selectable time periods (color-coded: green for increases, red for decreases)
+    - Dropdown selector to choose: Weekly, Monthly, Quarterly, or Annual changes
   - Independent range sliders on both plots for detailed time period analysis
 
 - **Command-Line Interface**: Easy data exploration from the terminal

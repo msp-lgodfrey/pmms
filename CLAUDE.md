@@ -47,7 +47,9 @@ The main data file is `data/historicalweeklydata.xlsx`, which contains historica
   - `read_pmms(filename)`: Reads PMMS Excel data, skips first 7 rows, loads first 2 columns as 'date' and 'rate', removes disclaimer rows
   - `plot_pmms(df, output_file='pmms.html')`: Creates interactive Plotly chart with two subplots:
     - Top: Rate over time with range slider
-    - Bottom: Quarterly rate changes (bar chart with green for increases, red for decreases)
+    - Bottom: Rate changes (bar chart with green for increases, red for decreases)
+      - Dropdown selector to choose period: Weekly, Monthly, Quarterly, or Annual
+    - Both plots have independent range sliders
   - Can be run as a script to display head/tail of data
 - `pyproject.toml`: Project configuration and dependencies
 - `data/`: Data directory
