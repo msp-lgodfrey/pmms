@@ -163,13 +163,13 @@ def plot_pmms(df, output_file='pmms.html'):
     fig.update_yaxes(title_text='Rate', row=1, col=1)
     fig.update_yaxes(title_text='Rate Change', row=2, col=1)
 
-    # Add source attribution at the bottom
+    # Add source attribution below the range slider
     fig.add_annotation(
         text='Data Source: Freddie Mac Primary Mortgage Market Survey',
         xref='paper',
         yref='paper',
         x=0.5,
-        y=-0.05,
+        y=-0.12,
         xanchor='center',
         yanchor='top',
         showarrow=False,
