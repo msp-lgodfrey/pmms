@@ -34,12 +34,12 @@ uv sync
 
 ```bash
 # Load and display PMMS data
-uv run python pmms.py historicalweeklydata.xlsx
+uv run python pmms.py data/historicalweeklydata.xlsx
 ```
 
 ## Data
 
-The main data file is `historicalweeklydata.xlsx`, which contains historical weekly data. This may be used as input for data analysis, reporting, or other processing tasks.
+The main data file is `data/historicalweeklydata.xlsx`, which contains historical weekly data. This may be used as input for data analysis, reporting, or other processing tasks.
 
 ## Project Structure
 
@@ -50,5 +50,6 @@ The main data file is `historicalweeklydata.xlsx`, which contains historical wee
     - Bottom: Quarterly rate changes (bar chart with green for increases, red for decreases)
   - Can be run as a script to display head/tail of data
 - `pyproject.toml`: Project configuration and dependencies
-- `historicalweeklydata.xlsx`: Historical weekly data
+- `data/`: Data directory
+  - `historicalweeklydata.xlsx`: Historical weekly data
 - `pmms.html`: Generated interactive plot (created by plot_pmms)
