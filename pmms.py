@@ -14,7 +14,8 @@ def read_pmms(filename):
         filename: Path to Excel file or URL (e.g., Freddie Mac's online data)
 
     Returns:
-        DataFrame with 'date' and 'rate' columns, with disclaimer rows removed
+        DataFrame with 'date', 'rate_30yr', and 'rate_15yr' columns, with disclaimer rows removed
+        Note: 15-year rates begin on 8/30/91
     """
     # If it's a URL, download with proper headers to avoid 403 errors
     if filename.startswith('http://') or filename.startswith('https://'):
@@ -26,32 +27,32 @@ def read_pmms(filename):
             content = response.read()
             df = pd.read_excel(
                 BytesIO(content),
-                usecols=[0, 1],
+                usecols=[0, 1, 3],
                 header=None,
                 skiprows=7,
-                names=['date', 'rate']
+                names=['date', 'rate_30yr', 'rate_15yr']
             )
     else:
         df = pd.read_excel(
             filename,
-            usecols=[0, 1],
+            usecols=[0, 1, 3],
             header=None,
             skiprows=7,
-            names=['date', 'rate']
+            names=['date', 'rate_30yr', 'rate_15yr']
         )
-    # Remove rows with missing rate values (disclaimers)
-    df = df.dropna(subset=['rate'])
+    # Remove rows with missing 30-year rate values (disclaimers)
+    df = df.dropna(subset=['rate_30yr'])
     return df
 
 
 def plot_pmms(df, output_file='pmms.html'):
     """
     Plot PMMS rate data over time using Plotly with two subplots:
-    1. Rate over time
+    1. Rate over time (30-year and 15-year)
     2. Rate changes (weekly, monthly, quarterly, or annual - selectable via dropdown)
 
     Args:
-        df: DataFrame with 'date' and 'rate' columns
+        df: DataFrame with 'date', 'rate_30yr', and 'rate_15yr' columns
         output_file: Path to save the HTML file (default: 'pmms.html')
     """
     # Ensure date column is datetime
@@ -70,42 +71,74 @@ def plot_pmms(df, output_file='pmms.html'):
     }
 
     for name, resample_rule in periods.items():
-        df_period = df_indexed.resample(resample_rule)['rate'].last().reset_index()
-        df_period['rate_change'] = df_period['rate'].diff()
+        df_period = df_indexed.resample(resample_rule)[['rate_30yr', 'rate_15yr']].last().reset_index()
+        df_period['rate_change_30yr'] = df_period['rate_30yr'].diff()
+        df_period['rate_change_15yr'] = df_period['rate_15yr'].diff()
         period_data[name] = df_period
 
     # Create subplots with extra spacing to accommodate rangeslider
     fig = make_subplots(
         rows=2, cols=1,
-        subplot_titles=('Freddie Mac PMMS<br><sub>30-Year Mortgage Rate</sub>', 'Rate Change'),
+        subplot_titles=('Freddie Mac PMMS<br><sub>Mortgage Rates</sub>', 'Rate Change'),
         vertical_spacing=0.38,
         row_heights=[0.52, 0.48]
     )
 
-    # Add rate over time plot
+    # Add rate over time plots for both 30-year and 15-year
     fig.add_trace(
         go.Scatter(
             x=df['date'],
-            y=df['rate'],
+            y=df['rate_30yr'],
             mode='lines',
-            name='30-year rate',
-            line=dict(color='blue')
+            name='30-year',
+            line=dict(color='blue'),
+            hovertemplate='30-year: %{y:.2f}%<extra></extra>'
         ),
         row=1, col=1
     )
 
-    # Add rate change plots for each period
+    fig.add_trace(
+        go.Scatter(
+            x=df['date'],
+            y=df['rate_15yr'],
+            mode='lines',
+            name='15-year',
+            line=dict(color='green'),
+            hovertemplate='15-year: %{y:.2f}%<extra></extra>'
+        ),
+        row=1, col=1
+    )
+
+    # Add rate change plots for each period (both 30-year and 15-year)
     for idx, (name, df_period) in enumerate(period_data.items()):
-        colors = ['green' if x >= 0 else 'red' for x in df_period['rate_change'].fillna(0)]
+        # 30-year changes
+        colors_30yr = ['#0066cc' if x >= 0 else '#ff3333' for x in df_period['rate_change_30yr'].fillna(0)]
 
         fig.add_trace(
             go.Bar(
                 x=df_period['date'],
-                y=df_period['rate_change'],
-                name=f'{name} Change',
-                marker=dict(color=colors),
-                visible=(name == 'Quarterly'),  # Only quarterly visible by default
-                showlegend=False  # Don't show in legend
+                y=df_period['rate_change_30yr'],
+                name='30-year',
+                marker=dict(color=colors_30yr),
+                visible=(name == 'Quarterly'),
+                offsetgroup=0,
+                showlegend=False
+            ),
+            row=2, col=1
+        )
+
+        # 15-year changes
+        colors_15yr = ['#00aa00' if x >= 0 else '#cc0000' for x in df_period['rate_change_15yr'].fillna(0)]
+
+        fig.add_trace(
+            go.Bar(
+                x=df_period['date'],
+                y=df_period['rate_change_15yr'],
+                name='15-year',
+                marker=dict(color=colors_15yr),
+                visible=(name == 'Quarterly'),
+                offsetgroup=1,
+                showlegend=False
             ),
             row=2, col=1
         )
@@ -114,9 +147,16 @@ def plot_pmms(df, output_file='pmms.html'):
     buttons = []
     for idx, name in enumerate(period_data.keys()):
         # Calculate which traces should be visible
-        # Trace 0 is the rate plot (always visible)
-        # Traces 1-4 are the period change plots
-        visible = [True] + [i == idx for i in range(len(period_data))]
+        # Traces 0-1 are the rate plots (always visible)
+        # Traces 2+ are the period change plots (2 per period: 30yr and 15yr)
+        visible = [True, True]  # Top plot traces always visible
+
+        # Add visibility for each period's traces
+        for i in range(len(period_data)):
+            if i == idx:
+                visible.extend([True, True])  # Show both 30yr and 15yr for selected period
+            else:
+                visible.extend([False, False])
 
         buttons.append(
             dict(
@@ -124,7 +164,7 @@ def plot_pmms(df, output_file='pmms.html'):
                 method='update',
                 args=[
                     {'visible': visible},
-                    {'annotations[1].text': f'{name} Rate Change'}  # Update subplot title
+                    {'annotations[1].text': f'{name} Rate Change'}
                 ]
             )
         )
@@ -133,7 +173,8 @@ def plot_pmms(df, output_file='pmms.html'):
     fig.update_layout(
         hovermode='x unified',
         showlegend=True,
-        height=950,
+        height=1200,
+        barmode='group',
         updatemenus=[
             dict(
                 buttons=buttons,
@@ -148,11 +189,24 @@ def plot_pmms(df, output_file='pmms.html'):
         ]
     )
 
-    # Update axes
-    fig.update_xaxes(title_text='Date', row=1, col=1, rangeslider=dict(visible=True))
-    fig.update_xaxes(title_text='Date', row=2, col=1, rangeslider=dict(visible=True))
-    fig.update_yaxes(title_text='Rate', row=1, col=1)
-    fig.update_yaxes(title_text='Rate Change', row=2, col=1)
+    # Update axes with explicit range to show all data
+    # Add a small buffer to ensure the last data point is fully visible
+    date_buffer = pd.Timedelta(days=7)
+    fig.update_xaxes(
+        title_text='Date',
+        row=1, col=1,
+        rangeslider=dict(visible=True),
+        hoverformat='%m/%d/%Y',
+        range=[df['date'].min(), df['date'].max() + date_buffer]
+    )
+    fig.update_xaxes(
+        title_text='Date',
+        row=2, col=1,
+        rangeslider=dict(visible=True),
+        hoverformat='%m/%d/%Y'
+    )
+    fig.update_yaxes(title_text='Rate (%)', row=1, col=1)
+    fig.update_yaxes(title_text='Rate Change (%)', row=2, col=1)
 
     # Add source attribution below the range slider
     fig.add_annotation(
@@ -192,3 +246,6 @@ if __name__ == "__main__":
     print(df.head())
     print("\nTail of the data:")
     print(df.tail())
+
+    print("\nGenerating plot...")
+    plot_pmms(df)
