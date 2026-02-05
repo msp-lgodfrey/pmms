@@ -4,7 +4,7 @@ A Python tool for analyzing and visualizing Freddie Mac's Primary Mortgage Marke
 
 ## Overview
 
-This project provides tools to load, analyze, and visualize historical mortgage rate data from Freddie Mac's weekly survey. The data includes 30-year rates from 1971 to present and 15-year rates from August 30, 1991 to present, offering insights into long-term mortgage rate trends and quarterly changes.
+This project provides tools to load, analyze, and visualize historical mortgage rate data from Freddie Mac's weekly survey. The data includes 30-year rates from April 2, 1971 to present and 15-year rates from August 30, 1991 to present, offering insights into long-term mortgage rate trends and quarterly changes.
 
 ## Features
 
