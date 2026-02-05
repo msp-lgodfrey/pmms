@@ -1,10 +1,10 @@
 # PMMS - Primary Mortgage Market Survey Visualization
 
-A Python tool for analyzing and visualizing Freddie Mac's Primary Mortgage Market Survey (PMMS) data, specifically tracking 30-year fixed-rate mortgage rates over time.
+A Python tool for analyzing and visualizing Freddie Mac's Primary Mortgage Market Survey (PMMS) data, tracking both 30-year and 15-year fixed-rate mortgage rates over time.
 
 ## Overview
 
-This project provides tools to load, analyze, and visualize historical mortgage rate data from Freddie Mac's weekly survey. The data spans from 1971 to present, offering insights into long-term mortgage rate trends and quarterly changes.
+This project provides tools to load, analyze, and visualize historical mortgage rate data from Freddie Mac's weekly survey. The data includes 30-year rates from 1971 to present and 15-year rates from August 30, 1991 to present, offering insights into long-term mortgage rate trends and quarterly changes.
 
 ## Features
 
@@ -13,10 +13,11 @@ This project provides tools to load, analyze, and visualize historical mortgage 
   - Proper date parsing and data type handling
 
 - **Interactive Visualizations**: Dual-subplot charts with Plotly
-  - **Top Plot**: Historical mortgage rates over time with full timeline view
-  - **Bottom Plot**: Rate changes with selectable time periods (color-coded: green for increases, red for decreases)
-    - Dropdown selector to choose: Weekly, Monthly, Quarterly, or Annual changes
+  - **Top Plot**: Historical 30-year and 15-year mortgage rates over time with full timeline view
+  - **Bottom Plot**: Grouped bar chart comparing rate changes for both loan types (color-coded by increase/decrease)
+    - Dropdown selector to choose: Monthly, Quarterly, or Annual changes
   - Independent range sliders on both plots for detailed time period analysis
+  - Full date format (mm/dd/yyyy) in hover tooltips
 
 - **Command-Line Interface**: Easy data exploration from the terminal
   - Display head and tail of data
